@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Yonutri Payment</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <button id="pay-btn">Pay Now</button>
+
+  <script>
+    document.getElementById('pay-btn').onclick = function(e){
+      var options = {
+          "key": "rzp_test_XXXX", // Replace with your Key ID
+          "amount": 50000, // 50000 paise = ₹500
+          "currency": "INR",
+          "name": "Yonutri",
+          "description": "Order #1234",
+          "image": "https://yourdomain.com/logo.png",
+          "handler": function (response){
+              alert("Payment ID: " + response.razorpay_payment_id);
+              // Send details to backend verify API
+          },
+          "prefill": {
+              "name": "Mahesh",
+              "email": "mahesh@example.com",
+              "contact": "9999999999"
+          },
+          "theme": { "color": "#3399cc" }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+      e.preventDefault();
+    }
+  </script>
+</body>
+</html>
+
