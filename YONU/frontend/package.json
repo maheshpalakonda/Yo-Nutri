@@ -1,0 +1,11 @@
+{
+  "name": "yono-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Yo Nutri e-commerce site",
+  "scripts": {
+    "start": "live-server --port=8080 --open=./index.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
