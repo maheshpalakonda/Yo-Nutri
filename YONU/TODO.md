@@ -1,5 +1,0 @@
-- [x] Remove nav buttons for Testimonials and Hero Images
-- [x] Remove sectionTestimonials and sectionHeroImages sections
-- [x] Remove JavaScript functions and code for testimonials and hero images management
-- [x] Update navButtons and sections objects to exclude testimonials and hero images
-- [x] Remove fetchTestimonials() and fetchHeroImages() calls from initAdminPanel
