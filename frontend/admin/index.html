@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel - Yo Nutri</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+    header {
+      background: #3e2723;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      background: #5d4037;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0;
+    }
+    nav button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    nav button.active {
+      background: #d7ccc8;
+      color: #3e2723;
+      border-radius: 4px;
+    }
+    main {
+      padding: 1rem;
+    }
+    section {
+      display: none;
+    }
+    section.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #eee;
+    }
+    button.action-btn {
+      background: #3e2723;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      border-radius: 3px;
+      margin-right: 0.3rem;
+    }
+    button.action-btn.delete {
+      background: #b71c1c;
+    }
+    form {
+      margin-top: 1rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 4px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      max-width: 600px;
+    }
+    form label {
+      display: block;
+      margin-top: 0.5rem;
+    }
+    form input, form textarea, form select {
+      width: 100%;
+      padding: 0.4rem;
+      margin-top: 0.2rem;
+      box-sizing: border-box;
+    }
+    form button {
+      margin-top: 1rem;
+      background: #3e2723;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: black;
+    }
+    .order-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .order-info, .customer-info, .shipping-info {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    .order-items {
+      width: 100%;
+      margin-top: 15px;
+    }
+    .order-items table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .order-items th, .order-items td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .order-items th {
+      background: #eee;
+    }
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .status-processing { background: #fff3cd; color: #856404; }
+    .status-shipped { background: #d1ecf1; color: #0c5460; }
+    .status-delivered { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .shiprocket-info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .action-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-view { background: #007bff; color: white; }
+    .btn-edit { background: #28a745; color: white; }
+    .btn-shiprocket { background: #17a2b8; color: white; }
+    .btn-status { background: #ffc107; color: black; }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+      nav button {
+        width: 100%;
+        padding: 0.75rem 1rem;
+      }
+      main {
+        padding: 0.5rem;
+      }
+      table {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+      }
+      th, td {
+        padding: 0.5rem 0.25rem;
+        min-width: 80px;
+      }
+      form {
+        padding: 0.5rem;
+        max-width: none;
+        margin-top: 0.5rem;
+      }
+      form label {
+        display: block;
+        margin-top: 0.75rem;
+        font-weight: bold;
+      }
+      form input, form textarea, form select {
+        width: 100%;
+        padding: 0.5rem;
+        margin-top: 0.25rem;
+        box-sizing: border-box;
+      }
+      form button {
+        width: 100%;
+        padding: 0.75rem;
+        margin-top: 1rem;
+      }
+      button.action-btn {
+        width: 100%;
+        margin-bottom: 0.25rem;
+      }
+      .variant-row, .bar-variant-row {
+        padding: 0.5rem;
+      }
+      .variant-row label, .bar-variant-row label {
+        display: block;
+        margin-top: 0.5rem;
+      }
+      .variant-row input, .variant-row select,
+      .bar-variant-row input, .bar-variant-row select {
+        width: 100%;
+        margin-top: 0.25rem;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      nav button {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+      }
+      table {
+        font-size: 0.9rem;
+      }
+      form {
+        max-width: 500px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Yo Nutri Admin Panel</h1>
+  </header>
+  <nav>
+    <button id="navProducts" class="active">Products</button>
+    <button id="navBars">Bars Management</button>
+    <button id="navUsers">Users</button>
+    <button id="navOrders">Orders</button>
+    <button id="navVariants">Product Variants</button>
+    <button id="navCoupons">Coupons</button>
+  </nav>
+  <main>
+    <section id="sectionProducts" class="active">
+      <h2>Product Management</h2>
+      <button id="btnAddProduct">Add New Product</button>
+      <table id="productsTable">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Description</th><th>Base Price</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <form id="productForm" style="display:none;" enctype="multipart/form-data">
+        <h3 id="productFormTitle">Add Product</h3>
+        <input type="hidden" id="productId" />
+        <label>Name: <input type="text" id="productName" required /></label>
+        <label>Description: <textarea id="productDescription" rows="3"></textarea></label>
+        <label>Category:
+          <select id="productCategory" required>
+            <option value="">Select Category</option>
+            <option value="2">Creamy</option>
+            <option value="3">Crunchy</option>
+          </select>
+        </label>
+        <label>Base Price: <input type="number" id="productBasePrice" step="0.01" required /></label>
+        <label>Image: <input type="file" id="productImage" accept="image/png,image/jpeg,image/jpg" /></label>
+        <div id="productImagePreview" style="margin-top: 10px;"></div>
+
+        <h4>Product Variants</h4>
+        <div id="variantsContainer">
+          <div class="variant-row" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+            <label>Flavor:
+              <select class="variantFlavor" required>
+                <option value="">Select Flavor</option>
+                <option value="new">+ Add New Flavor</option>
+              </select>
+              <input type="text" class="newFlavorInput" placeholder="Enter new flavor name" style="display: none; margin-top: 5px; width: 100%; padding: 4px;" />
+            </label>
+            <label>Grams: <input type="number" class="variantGrams" placeholder="350" required /></label>
+            <label>Price: <input type="number" class="variantPrice" step="0.01" required /></label>
+            <label>Stock: <input type="number" class="variantStock" required /></label>
+            <button type="button" class="removeVariant" style="background: #b71c1c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Remove</button>
+          </div>
+        </div>
+        <button type="button" id="addVariantBtn" style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-bottom: 10px;">Add Another Variant</button>
+
+        <button type="submit">Save Product & Variants</button>
+        <button type="button" id="productFormCancel">Cancel</button>
+      </form>
+    </section>
+
+    <section id="sectionBars">
+      <h2>Bars Management</h2>
+      <button id="btnAddBar">Add New Bar</button>
+      <table id="barsTable">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Category</th><th>Base Price</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <form id="barForm" style="display:none;" enctype="multipart/form-data">
+        <h3 id="barFormTitle">Add Bar</h3>
+        <input type="hidden" id="barId" />
+        <label>Name: <input type="text" id="barName" required /></label>
+        <label>Category:
+          <select id="barCategory" required>
+            <option value="">Select Category</option>
+          <option value="4">Chocolate Energy Bars</option>
+          <option value="5">Roasted Energy Bars</option>
+          <option value="6">Protein & Nut Bars</option>
+          <option value="new">+ Add New Category</option>
+          </select>
+          <input type="text" id="newBarCategoryInput" placeholder="Enter new category name" style="display: none; margin-top: 5px; width: 100%; padding: 4px;" />
+        </label>
+        <label>Base Price: <input type="number" id="barBasePrice" step="0.01" /></label>
+        <label>Image: <input type="file" id="barImage" accept="image/png,image/jpeg,image/jpg" /></label>
+        <div id="barImagePreview" style="margin-top: 10px;"></div>
+
+
+
+        <button type="submit">Save Bar</button>
+        <button type="button" id="barFormCancel">Cancel</button>
+      </form>
+    </section>
+
+    <section id="sectionUsers">
+      <h2>User Management</h2>
+      <table id="usersTable">
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="sectionOrders">
+      <h2>Order Management</h2>
+      <div id="orderDetailsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h3>Order Details</h3>
+          <div id="orderDetailsContent"></div>
+        </div>
+      </div>
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Shipping Status</th>
+            <th>ShipRocket ID</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+  </section>
+  </main>
+
+  <section id="sectionVariants">
+    <h2>Product Variants Management</h2>
+    <button id="btnAddVariant">Add New Variant</button>
+    <table id="variantsTable">
+      <thead>
+        <tr><th>ID</th><th>Product</th><th>Flavor</th><th>Grams</th><th>Price</th><th>Stock</th><th>Actions</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <form id="variantForm" style="display:none;">
+      <h3 id="variantFormTitle">Add Variant</h3>
+      <input type="hidden" id="variantId" />
+      <label>Product:
+        <select id="variantProductId" required></select>
+      </label>
+      <label>Flavor:
+        <select id="variantFlavorId" required></select>
+      </label>
+      <label>Grams: <input type="number" id="variantGrams" required /></label>
+      <label>Price: <input type="number" id="variantPrice" step="0.01" required /></label>
+      <label>Stock: <input type="number" id="variantStock" required /></label>
+      <button type="submit">Save</button>
+      <button type="button" id="variantFormCancel">Cancel</button>
+    </form>
+  </section>
+
+  <section id="sectionCoupons">
+    <h2>Coupons Management</h2>
+    <button id="btnAddCoupon">Add New Coupon</button>
+    <table id="couponsTable">
+      <thead>
+        <tr><th>ID</th><th>Code</th><th>Type</th><th>Amount</th><th>Min Amount</th><th>Expiry Date</th><th>Usage Limit</th><th>Actions</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <form id="couponForm" style="display:none;">
+      <h3 id="couponFormTitle">Add Coupon</h3>
+      <input type="hidden" id="couponId" />
+      <label>Code: <input type="text" id="couponCode" required /></label>
+      <label>Discount Type:
+        <select id="couponDiscountType" required>
+          <option value="percent">Percentage</option>
+          <option value="flat">Fixed</option>
+        </select>
+      </label>
+      <label>Discount Amount: <input type="number" id="couponDiscountValue" step="0.01" required /></label>
+      <label>Minimum Amount: <input type="number" id="couponMinimumAmount" step="0.01" /></label>
+      <label>Expiry Date: <input type="date" id="couponExpiryDate" /></label>
+      <label>Usage Limit: <input type="number" id="couponUsageLimit" /></label>
+      <button type="submit">Save</button>
+      <button type="button" id="couponFormCancel">Cancel</button>
+    </form>
+  </section>
+
+<script src="../config.js"></script>
+  <!-- <script>console.log("API URL:", window.ENV.BACKEND_API);</script> -->
+
+
+
+
+
+<script>
+
+  const API = window.ENV.BACKEND_API
+
+console.log("API URL:", API);
+    // Navigation buttons and sections
+    const navButtons = {
+      navProducts: document.getElementById('navProducts'),
+      navBars: document.getElementById('navBars'),
+      navUsers: document.getElementById('navUsers'),
+      navOrders: document.getElementById('navOrders'),
+      navVariants: document.getElementById('navVariants'),
+      navCoupons: document.getElementById('navCoupons')
+    };
+    const sections = {
+      sectionProducts: document.getElementById('sectionProducts'),
+      sectionBars: document.getElementById('sectionBars'),
+      sectionUsers: document.getElementById('sectionUsers'),
+      sectionOrders: document.getElementById('sectionOrders'),
+      sectionVariants: document.getElementById('sectionVariants'),
+      sectionCoupons: document.getElementById('sectionCoupons')
+    };
+
+    Object.keys(navButtons).forEach(key => {
+      navButtons[key].addEventListener('click', () => {
+        Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
+        navButtons[key].classList.add('active');
+        Object.values(sections).forEach(sec => sec.classList.remove('active'));
+        sections[key.replace('nav', 'section')].classList.add('active');
+        if (key === 'navUsers') {
+          fetchUsers();
+        } else if (key === 'navOrders') {
+          fetchOrders();
+        } else if (key === 'navVariants') {
+          fetchVariants();
+        } else if (key === 'navCoupons') {
+          fetchCoupons();
+        }
+      });
+    });
+
+    // Helper to get auth token
+    function getToken() {
+      return localStorage.getItem('token');
+    }
+
+    // Check if user is admin
+    async function checkAdminAccess() {
+      const token = getToken();
+      if (!token) {
+        window.location.href = '../login.html';
+        return false;
+      }
+
+      try {
+        // Try to access an admin endpoint to verify admin status
+        const res = await fetch(`${API}/api/admin/products`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) {
+          alert('Access denied. Admin privileges required.');
+          window.location.href = '../login.html';
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Admin access check failed:', error);
+        alert('Access denied. Admin privileges required.');
+        window.location.href = '../login.html';
+        return false;
+      }
+    }
+
+    // Fetch and render products (only non-bar categories)
+    async function fetchProducts() {
+      const res = await fetch(`${API}/api/admin/products`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch products');
+        return;
+      }
+      let products = await res.json();
+      // Exclude bar categories (4,5,6) from products list
+      products = products.filter(p => ![4,5,6].includes(p.category_id));
+      const tbody = document.querySelector('#productsTable tbody');
+      tbody.innerHTML = '';
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.name}</td>
+          <td>${p.description}</td>
+          <td>${p.base_price || 'N/A'}</td>
+          <td>
+            <button class="action-btn edit" data-id="${p.id}">Edit</button>
+            <button class="action-btn delete" data-id="${p.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Fetch and render bars (only bar categories)
+    async function fetchBars() {
+      const res = await fetch(`${API}/api/admin/products`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch bars');
+        return;
+      }
+      let products = await res.json();
+      // Include only bar categories (4,5,6)
+      products = products.filter(p => [4,5,6].includes(p.category_id));
+      const tbody = document.querySelector('#barsTable tbody');
+      tbody.innerHTML = '';
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.name}</td>
+          <td>${p.category}</td>
+          <td>${p.base_price || 'N/A'}</td>
+          <td>
+            <button class="action-btn edit" data-id="${p.id}">Edit</button>
+            <button class="action-btn delete" data-id="${p.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Fetch and render bars
+    async function fetchBars() {
+      const res = await fetch(`${API}/api/admin/products`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch bars');
+        return;
+      }
+      const products = await res.json();
+      // Filter only bar products (categories 4, 5, 6), exclude peanut butter (1)
+      const bars = products.filter(p => [4, 5, 6].includes(p.category_id));
+      const tbody = document.querySelector('#barsTable tbody');
+      tbody.innerHTML = '';
+      bars.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${b.id}</td>
+          <td>${b.name}</td>
+          <td>${b.category}</td>
+          <td>${b.base_price}</td>
+          <td>
+            <button class="action-btn edit" data-id="${b.id}">Edit</button>
+            <button class="action-btn delete" data-id="${b.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Show product form for add or edit
+    const productForm = document.getElementById('productForm');
+    const productFormTitle = document.getElementById('productFormTitle');
+    const productIdInput = document.getElementById('productId');
+    const productNameInput = document.getElementById('productName');
+    const productDescriptionInput = document.getElementById('productDescription');
+    const productBasePriceInput = document.getElementById('productBasePrice');
+
+    document.getElementById('btnAddProduct').addEventListener('click', async () => {
+      productFormTitle.textContent = 'Add Product';
+      productIdInput.value = '';
+      productNameInput.value = '';
+      productDescriptionInput.value = '';
+      productBasePriceInput.value = '';
+      document.getElementById('productCategory').value = '';
+      // Reset variants container to one empty row
+      document.getElementById('variantsContainer').innerHTML = `
+        <div class="variant-row" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+          <label>Flavor:
+            <select class="variantFlavor" required>
+              <option value="">Select Flavor</option>
+            </select>
+          </label>
+          <label>Grams: <input type="number" class="variantGrams" placeholder="350" required /></label>
+          <label>Price: <input type="number" class="variantPrice" step="0.01" required /></label>
+          <label>Stock: <input type="number" class="variantStock" required /></label>
+          <button type="button" class="removeVariant" style="background: #b71c1c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Remove</button>
+        </div>
+      `;
+      await populateFlavorSelects();
+      productForm.style.display = 'block';
+    });
+
+    document.getElementById('productFormCancel').addEventListener('click', () => {
+      productForm.style.display = 'none';
+    });
+
+    // Handle product form submit
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      console.log('=== PRODUCT FORM SUBMISSION START ===');
+
+      const id = productIdInput.value;
+      const formData = new FormData();
+      formData.append('name', productNameInput.value);
+      formData.append('description', productDescriptionInput.value);
+      formData.append('category_id', document.getElementById('productCategory').value);
+      formData.append('base_price', parseFloat(productBasePriceInput.value));
+      const imageInput = document.getElementById('productImage');
+      if (imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+      }
+
+      console.log('Form data collected:');
+      console.log('- name:', productNameInput.value);
+      console.log('- description:', productDescriptionInput.value);
+      console.log('- category_id:', document.getElementById('productCategory').value);
+      console.log('- base_price:', productBasePriceInput.value);
+      console.log('- has_image:', !!imageInput.files[0]);
+
+      // Collect variants data
+      const variants = [];
+      const newFlavors = [];
+      const variantRows = document.querySelectorAll('.variant-row');
+      console.log('Processing', variantRows.length, 'variant rows');
+
+      variantRows.forEach((row, index) => {
+        const flavorSelect = row.querySelector('.variantFlavor');
+        if (!flavorSelect) {
+          console.log('Row', index, 'missing flavor select');
+          return;
+        }
+        const flavorId = flavorSelect.value;
+        const gramsInput = row.querySelector('.variantGrams');
+        const priceInput = row.querySelector('.variantPrice');
+        const stockInput = row.querySelector('.variantStock');
+        if (!gramsInput || !priceInput || !stockInput) {
+          console.log('Row', index, 'missing input fields');
+          return;
+        }
+        const grams = gramsInput.value;
+        const price = priceInput.value;
+        const stock = stockInput.value;
+
+        console.log('Row', index, 'data:', { flavorId, grams, price, stock });
+
+        if (flavorId && grams && price && stock) {
+          if (flavorId === 'new') {
+            const newFlavorInput = row.querySelector('.newFlavorInput');
+            if (!newFlavorInput) {
+              console.log('Row', index, 'missing new flavor input');
+              return;
+            }
+            const newFlavorName = newFlavorInput.value.trim();
+            if (newFlavorName) {
+              newFlavors.push({
+                name: newFlavorName,
+                grams: parseInt(grams),
+                price: parseFloat(price),
+                stock: parseInt(stock)
+              });
+              console.log('Added new flavor:', newFlavorName);
+            } else {
+              console.log('Row', index, 'new flavor selected but no name entered');
+              return;
+            }
+          } else {
+            variants.push({
+              flavor_id: parseInt(flavorId),
+              grams: parseInt(grams),
+              price: parseFloat(price),
+              stock: parseInt(stock)
+            });
+            console.log('Added existing flavor variant:', flavorId);
+          }
+        } else {
+          console.log('Row', index, 'missing required data');
+        }
+      });
+
+      console.log('Collected variants:', variants);
+      console.log('Collected newFlavors:', newFlavors);
+
+      if (variants.length === 0 && newFlavors.length === 0) {
+        alert('Please add at least one variant');
+        return;
+      }
+
+      formData.append('variants', JSON.stringify(variants));
+      formData.append('newFlavors', JSON.stringify(newFlavors));
+
+      console.log('Sending request to:', `${API}/api/admin/products`);
+
+      let url = `${API}/api/admin/products`;
+      let method = 'POST';
+      if (id) {
+        url += '/' + id;
+        method = 'PUT';
+      }
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': 'Bearer ' + getToken()
+          },
+          body: formData
+        });
+
+        console.log('Response status:', res.status);
+        console.log('Response headers:', res.headers);
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.log('Error response:', errorText);
+
+          let errorMessage = 'Failed to save product and variants';
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorData.error || errorMessage;
+            console.log('Parsed error data:', errorData);
+          } catch (parseError) {
+            console.log('Could not parse error response as JSON');
+          }
+
+          alert(`Error: ${errorMessage}`);
+          return;
+        }
+
+        const responseData = await res.json();
+        console.log('Success response:', responseData);
+
+        alert('Product and variants saved successfully!');
+        productForm.style.display = 'none';
+        fetchProducts();
+        fetchVariants(); // Refresh variants table too
+      } catch (error) {
+        console.error('Network error:', error);
+        alert('Network error occurred. Please check your connection and try again.');
+      }
+    });
+
+    // Handle edit and delete buttons in products table
+    document.querySelector('#productsTable tbody').addEventListener('click', async (e) => {
+      if (e.target.classList.contains('edit')) {
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/products/`+ id, {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to fetch product');
+          return;
+        }
+        const product = await res.json();
+        productFormTitle.textContent = 'Edit Product';
+        productIdInput.value = product.id;
+        productNameInput.value = product.name;
+        productDescriptionInput.value = product.description;
+        document.getElementById('productCategory').value = product.category_id;
+        productBasePriceInput.value = product.base_price;
+
+        // Populate variants
+        const variantsContainer = document.getElementById('variantsContainer');
+        variantsContainer.innerHTML = '';
+
+        if (product.variants && product.variants.length > 0) {
+          product.variants.forEach(variant => {
+            const variantRow = document.createElement('div');
+            variantRow.className = 'variant-row';
+            variantRow.style.cssText = 'border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;';
+            variantRow.innerHTML = `
+              <label>Flavor:
+                <select class="variantFlavor" required data-selected="${variant.flavor_id}">
+                  <option value="">Select Flavor</option>
+                  <option value="new">+ Add New Flavor</option>
+                </select>
+                <input type="text" class="newFlavorInput" placeholder="Enter new flavor name" style="display: none; margin-top: 5px; width: 100%; padding: 4px;" />
+              </label>
+              <label>Grams: <input type="number" class="variantGrams" placeholder="350" value="${variant.grams}" required /></label>
+              <label>Price: <input type="number" class="variantPrice" step="0.01" value="${variant.price}" required /></label>
+              <label>Stock: <input type="number" class="variantStock" value="${variant.stock}" required /></label>
+              <button type="button" class="removeVariant" style="background: #b71c1c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Remove</button>
+            `;
+            variantsContainer.appendChild(variantRow);
+          });
+        } else {
+          // Add one empty variant row if no variants exist
+          const variantRow = document.createElement('div');
+          variantRow.className = 'variant-row';
+          variantRow.style.cssText = 'border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;';
+          variantRow.innerHTML = `
+            <label>Flavor:
+              <select class="variantFlavor" required>
+                <option value="">Select Flavor</option>
+              </select>
+            </label>
+            <label>Grams: <input type="number" class="variantGrams" placeholder="350" required /></label>
+            <label>Price: <input type="number" class="variantPrice" step="0.01" required /></label>
+            <label>Stock: <input type="number" class="variantStock" required /></label>
+            <button type="button" class="removeVariant" style="background: #b71c1c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Remove</button>
+          `;
+          variantsContainer.appendChild(variantRow);
+        }
+
+        await populateFlavorSelects();
+        productForm.style.display = 'block';
+      } else if (e.target.classList.contains('delete')) {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/products/`+ id, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to delete product');
+          return;
+        }
+        fetchProducts();
+        fetchVariants(); // Refresh variants table too
+      }
+    });
+
+
+
+    // Fetch and render variants
+    async function fetchVariants() {
+      const res = await fetch(`${API}/api/admin/product-variants`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch variants');
+        return;
+      }
+      const variants = await res.json();
+      const tbody = document.querySelector('#variantsTable tbody');
+      tbody.innerHTML = '';
+      variants.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${v.id}</td>
+          <td>${v.product_name}</td>
+          <td>${v.flavor_name || 'N/A'}</td>
+          <td>${v.grams}</td>
+          <td>${v.price}</td>
+          <td>${v.stock}</td>
+          <td>
+            <button class="action-btn edit" data-id="${v.id}">Edit</button>
+            <button class="action-btn delete" data-id="${v.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Show variant form for add or edit
+    const variantForm = document.getElementById('variantForm');
+    const variantFormTitle = document.getElementById('variantFormTitle');
+    const variantIdInput = document.getElementById('variantId');
+    const variantProductIdInput = document.getElementById('variantProductId');
+    const variantFlavorIdInput = document.getElementById('variantFlavorId');
+    const variantGramsInput = document.getElementById('variantGrams');
+    const variantPriceInput = document.getElementById('variantPrice');
+    const variantStockInput = document.getElementById('variantStock');
+
+    document.getElementById('btnAddVariant').addEventListener('click', async () => {
+      variantFormTitle.textContent = 'Add Variant';
+      variantIdInput.value = '';
+      variantGramsInput.value = '';
+      variantPriceInput.value = '';
+      variantStockInput.value = '';
+      variantForm.style.display = 'block';
+      // Populate product and flavor selects
+      await populateProductSelect();
+      await populateFlavorSelect();
+    });
+
+    document.getElementById('variantFormCancel').addEventListener('click', () => {
+      variantForm.style.display = 'none';
+    });
+
+    // Handle variant form submit
+    variantForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = variantIdInput.value;
+      const data = {
+        product_id: variantProductIdInput.value,
+        flavor_id: variantFlavorIdInput.value,
+        grams: parseInt(variantGramsInput.value),
+        price: parseFloat(variantPriceInput.value),
+        stock: parseInt(variantStockInput.value)
+      };
+      let url = `${API}/api/admin/product-variants`;
+      let method = 'POST';
+      if (id) {
+        url += '/' + id;
+        method = 'PUT';
+      }
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': 'Bearer ' + getToken(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        alert('Failed to save variant');
+        return;
+      }
+      variantForm.style.display = 'none';
+      fetchVariants();
+    });
+
+    // Handle edit and delete buttons in variants table
+    document.querySelector('#variantsTable tbody').addEventListener('click', async (e) => {
+      if (e.target.classList.contains('edit')) {
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/product-variants/` + id, {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to fetch variant');
+          return;
+        }
+        const variant = await res.json();
+        variantFormTitle.textContent = 'Edit Variant';
+        variantIdInput.value = variant.id;
+        variantProductIdInput.value = variant.product_id;
+        variantFlavorIdInput.value = variant.flavor_id;
+        variantGramsInput.value = variant.grams;
+        variantPriceInput.value = variant.price;
+        variantStockInput.value = variant.stock;
+        variantForm.style.display = 'block';
+        await populateProductSelect();
+        await populateFlavorSelect();
+      } else if (e.target.classList.contains('delete')) {
+        if (!confirm('Are you sure you want to delete this variant?')) return;
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/product-variants/` + id, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to delete variant');
+          return;
+        }
+        fetchVariants();
+      }
+    });
+
+    // Fetch and render users
+    async function fetchUsers() {
+      const res = await fetch(`${API}/api/admin/users`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch users');
+        return;
+      }
+      const users = await res.json();
+      const tbody = document.querySelector('#usersTable tbody');
+      tbody.innerHTML = '';
+      users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${u.id}</td>
+          <td>${u.first_name} ${u.last_name}</td>
+          <td>${u.email}</td>
+          <td>${u.phone || 'N/A'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Fetch and render orders
+    async function fetchOrders() {
+      const res = await fetch(`${API}/api/admin/orders`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch orders');
+        return;
+      }
+      const orders = await res.json();
+      const tbody = document.querySelector('#ordersTable tbody');
+      tbody.innerHTML = '';
+      orders.forEach(o => {
+        const tr = document.createElement('tr');
+        const statusClass = getStatusClass(o.status);
+        const shippingStatusClass = getStatusClass(o.shipping_status);
+        tr.innerHTML = `
+          <td>${o.id}</td>
+          <td>${o.user.first_name} ${o.user.last_name}<br><small>${o.user.email}</small></td>
+          <td>₹${o.total_amount}</td>
+          <td><span class="status-badge ${statusClass}">${o.status}</span></td>
+          <td><span class="status-badge ${shippingStatusClass}">${o.shipping_status || 'N/A'}</span></td>
+          <td>${o.shiprocket_order_id || 'N/A'}</td>
+          <td>${new Date(o.created_at).toLocaleDateString()}</td>
+          <td>
+            <button class="action-btn btn-view" data-id="${o.id}">View Details</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Get status class for styling
+    function getStatusClass(status) {
+      if (!status) return '';
+      const statusLower = status.toLowerCase();
+      if (statusLower.includes('processing')) return 'status-processing';
+      if (statusLower.includes('shipped')) return 'status-shipped';
+      if (statusLower.includes('delivered')) return 'status-delivered';
+      if (statusLower.includes('cancelled')) return 'status-cancelled';
+      return '';
+    }
+
+    // Show order details modal
+    async function showOrderDetails(orderId) {
+      try {
+        const res = await fetch(`${API}/api/admin/orders/${orderId}`, {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to fetch order details');
+          return;
+        }
+        const order = await res.json();
+
+        const modal = document.getElementById('orderDetailsModal');
+        const content = document.getElementById('orderDetailsContent');
+
+        // Format order details
+        const statusClass = getStatusClass(order.status);
+        const shippingStatusClass = getStatusClass(order.shipping_status);
+
+        content.innerHTML = `
+          <div class="order-details">
+            <div class="order-info">
+              <h4>Order Information</h4>
+              <p><strong>Order ID:</strong> ${order.id}</p>
+              <p><strong>Total Amount:</strong> ₹${order.total_amount}</p>
+              <p><strong>Status:</strong> <span class="status-badge ${statusClass}">${order.status}</span></p>
+              <p><strong>Shipping Status:</strong> <span class="status-badge ${shippingStatusClass}">${order.shipping_status || 'N/A'}</span></p>
+              <p><strong>Payment Method:</strong> ${order.payment_method}</p>
+              <p><strong>Created At:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+              <p><strong>ShipRocket ID:</strong> ${order.shiprocket_order_id || 'N/A'}</p>
+              <p><strong>Tracking Number:</strong> ${order.tracking_number || 'N/A'}</p>
+            </div>
+            <div class="customer-info">
+              <h4>Customer Information</h4>
+              <p><strong>Name:</strong> ${order.user.first_name} ${order.user.last_name}</p>
+              <p><strong>Email:</strong> ${order.user.email}</p>
+              <p><strong>Phone:</strong> ${order.user.phone || 'N/A'}</p>
+            </div>
+          </div>
+          <div class="shipping-info">
+            <h4>Shipping Address</h4>
+            <p>${order.shipping_address || 'N/A'}</p>
+            <p>${order.shipping_city || 'N/A'}, ${order.shipping_state || 'N/A'} - ${order.shipping_pincode || 'N/A'}</p>
+            <p><strong>Shipping Phone:</strong> ${order.shipping_phone || 'N/A'}</p>
+          </div>
+          <div class="order-items">
+            <h4>Order Items</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Flavor</th>
+                  <th>Grams</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map(item => `
+                  <tr>
+                    <td>${item.product_name}</td>
+                    <td>${item.flavor_name || 'N/A'}</td>
+                    <td>${item.grams}g</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price}</td>
+                    <td>₹${item.total}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div class="action-buttons">
+            <button class="btn-shiprocket" onclick="showShipRocketDetails(${orderId})">View ShipRocket Details</button>
+            <button class="btn-status" onclick="updateOrderStatus(${orderId})">Update Status</button>
+          </div>
+          <div id="shiprocketDetails" class="shiprocket-info" style="display: none;">
+            <h4>ShipRocket Information</h4>
+            <div id="shiprocketContent">Loading...</div>
+          </div>
+        `;
+
+        modal.style.display = 'block';
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+        alert('Failed to load order details');
+      }
+    }
+
+    // Show ShipRocket details
+    async function showShipRocketDetails(orderId) {
+      const shiprocketDiv = document.getElementById('shiprocketDetails');
+      const shiprocketContent = document.getElementById('shiprocketContent');
+
+      try {
+        shiprocketDiv.style.display = 'block';
+        shiprocketContent.innerHTML = 'Loading ShipRocket details...';
+
+        const res = await fetch(`${API}/api/admin/orders/${orderId}/shiprocket`, {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          shiprocketContent.innerHTML = `<p style="color: red;">${errorData.error || errorData.message}</p>`;
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.message) {
+          shiprocketContent.innerHTML = `<p>${data.message}</p>`;
+          return;
+        }
+
+        // Display ShipRocket information
+        let html = `<p><strong>ShipRocket Order ID:</strong> ${data.shiprocket_order_id}</p>`;
+
+        if (data.details) {
+          html += `<h5>Order Details:</h5><pre>${JSON.stringify(data.details, null, 2)}</pre>`;
+        }
+
+        if (data.tracking) {
+          html += `<h5>Tracking Information:</h5><pre>${JSON.stringify(data.tracking, null, 2)}</pre>`;
+        }
+
+        shiprocketContent.innerHTML = html;
+      } catch (error) {
+        console.error('Error fetching ShipRocket details:', error);
+        shiprocketContent.innerHTML = `<p style="color: red;">Failed to load ShipRocket details</p>`;
+      }
+    }
+
+    // Update order status
+    async function updateOrderStatus(orderId) {
+      const newStatus = prompt('Enter new order status:');
+      const newShippingStatus = prompt('Enter new shipping status (optional):');
+
+      if (!newStatus) return;
+
+      try {
+        const res = await fetch(`${API}/api/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'Bearer ' + getToken(),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            status: newStatus,
+            shipping_status: newShippingStatus || undefined
+          })
+        });
+
+        if (!res.ok) {
+          alert('Failed to update order status');
+          return;
+        }
+
+        alert('Order status updated successfully');
+        fetchOrders(); // Refresh orders list
+        // Close modal and reopen to show updated info
+        document.getElementById('orderDetailsModal').style.display = 'none';
+        showOrderDetails(orderId);
+      } catch (error) {
+        console.error('Error updating order status:', error);
+        alert('Failed to update order status');
+      }
+    }
+
+    // Modal close functionality
+    document.querySelector('.close').addEventListener('click', () => {
+      document.getElementById('orderDetailsModal').style.display = 'none';
+      document.getElementById('shiprocketDetails').style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('orderDetailsModal');
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        document.getElementById('shiprocketDetails').style.display = 'none';
+      }
+    });
+
+    // Fetch and render coupons
+    async function fetchCoupons() {
+      const res = await fetch(`${API}/api/admin/coupons`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch coupons');
+        return;
+      }
+      const coupons = await res.json();
+      console.log('Coupons fetched:', coupons); // Debug log to check data
+      const tbody = document.querySelector('#couponsTable tbody');
+      tbody.innerHTML = '';
+      coupons.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${c.id}</td>
+          <td>${c.code}</td>
+          <td>${c.discount_type}</td>
+          <td>${c.discount_amount}</td>
+          <td>${c.minimum_amount || 'N/A'}</td>
+          <td>${c.expiry_date || 'N/A'}</td>
+          <td>${c.usage_limit || 'N/A'}</td>
+          <td>
+            <button class="action-btn edit" data-id="${c.id}">Edit</button>
+            <button class="action-btn delete" data-id="${c.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Show coupon form for add or edit
+    const couponForm = document.getElementById('couponForm');
+    const couponFormTitle = document.getElementById('couponFormTitle');
+    const couponIdInput = document.getElementById('couponId');
+    const couponCodeInput = document.getElementById('couponCode');
+    const couponDiscountTypeInput = document.getElementById('couponDiscountType');
+    const couponDiscountValueInput = document.getElementById('couponDiscountValue');
+    const couponMinimumAmountInput = document.getElementById('couponMinimumAmount');
+    const couponExpiryDateInput = document.getElementById('couponExpiryDate');
+    const couponUsageLimitInput = document.getElementById('couponUsageLimit');
+
+    document.getElementById('btnAddCoupon').addEventListener('click', () => {
+      couponFormTitle.textContent = 'Add Coupon';
+      couponIdInput.value = '';
+      couponCodeInput.value = '';
+      couponDiscountValueInput.value = '';
+      couponMinimumAmountInput.value = '';
+      couponExpiryDateInput.value = '';
+      couponUsageLimitInput.value = '';
+      couponForm.style.display = 'block';
+    });
+
+    document.getElementById('couponFormCancel').addEventListener('click', () => {
+      couponForm.style.display = 'none';
+    });
+
+    // Handle coupon form submit
+    couponForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = couponIdInput.value;
+      const data = {
+        code: couponCodeInput.value,
+        discount_type: couponDiscountTypeInput.value,
+        discount_amount: parseFloat(couponDiscountValueInput.value),
+        minimum_amount: couponMinimumAmountInput.value ? parseFloat(couponMinimumAmountInput.value) : null,
+        expiry_date: couponExpiryDateInput.value || null,
+        usage_limit: couponUsageLimitInput.value ? parseInt(couponUsageLimitInput.value) : null
+      };
+      let url = `${API}/api/admin/coupons`;
+      let method = 'POST';
+      if (id) {
+        url += '/' + id;
+        method = 'PUT';
+      }
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': 'Bearer ' + getToken(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        alert('Failed to save coupon');
+        return;
+      }
+      couponForm.style.display = 'none';
+      fetchCoupons();
+    });
+
+    // Handle edit and delete buttons in coupons table
+    document.querySelector('#couponsTable tbody').addEventListener('click', async (e) => {
+      if (e.target.classList.contains('edit')) {
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/coupons/` + id, {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to fetch coupon');
+          return;
+        }
+        const coupon = await res.json();
+        couponFormTitle.textContent = 'Edit Coupon';
+        couponIdInput.value = coupon.id;
+        couponCodeInput.value = coupon.code;
+        couponDiscountTypeInput.value = coupon.discount_type;
+        couponDiscountValueInput.value = coupon.discount_amount;
+        couponMinimumAmountInput.value = coupon.minimum_amount || '';
+        couponExpiryDateInput.value = coupon.expiry_date ? coupon.expiry_date.split('T')[0] : '';
+        couponUsageLimitInput.value = coupon.usage_limit;
+        couponForm.style.display = 'block';
+      } else if (e.target.classList.contains('delete')) {
+        if (!confirm('Are you sure you want to delete this coupon?')) return;
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/coupons/` + id, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to delete coupon');
+          return;
+        }
+        fetchCoupons();
+      }
+    });
+
+    // Helper functions to populate selects
+    async function populateProductSelect() {
+      const res = await fetch(`${API}/api/admin/products`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) return;
+      let products = await res.json();
+      // Exclude bar categories (4,5,6) from product select
+      products = products.filter(p => ![4,5,6].includes(p.category_id));
+      variantProductIdInput.innerHTML = '';
+      products.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.textContent = p.name;
+        variantProductIdInput.appendChild(option);
+      });
+    }
+
+    async function populateFlavorSelect() {
+      const res = await fetch(`${API}/api/flavors`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) return;
+      const flavors = await res.json();
+      variantFlavorIdInput.innerHTML = '';
+      flavors.forEach(f => {
+        const option = document.createElement('option');
+        option.value = f.id;
+        option.textContent = f.name;
+        variantFlavorIdInput.appendChild(option);
+      });
+    }
+
+    // Variant management functions
+    document.getElementById('addVariantBtn').addEventListener('click', async () => {
+      const container = document.getElementById('variantsContainer');
+      const newRow = document.createElement('div');
+      newRow.className = 'variant-row';
+      newRow.style.cssText = 'border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;';
+      newRow.innerHTML = `
+        <label>Flavor:
+          <select class="variantFlavor" required>
+            <option value="">Select Flavor</option>
+            <option value="new">+ Add New Flavor</option>
+          </select>
+          <input type="text" class="newFlavorInput" placeholder="Enter new flavor name" style="display: none; margin-top: 5px; width: 100%; padding: 4px;" />
+        </label>
+        <label>Grams: <input type="number" class="variantGrams" placeholder="350" required /></label>
+        <label>Price: <input type="number" class="variantPrice" step="0.01" required /></label>
+        <label>Stock: <input type="number" class="variantStock" required /></label>
+        <button type="button" class="removeVariant" style="background: #b71c1c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Remove</button>
+      `;
+      container.appendChild(newRow);
+      await populateFlavorSelects();
+    });
+
+    // Handle remove variant buttons
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('removeVariant')) {
+        const variantRows = document.querySelectorAll('.variant-row');
+        if (variantRows.length > 1) {
+          e.target.closest('.variant-row').remove();
+        } else {
+          alert('You must have at least one variant');
+        }
+      }
+    });
+
+    // Handle order details view buttons
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-view')) {
+        const orderId = e.target.getAttribute('data-id');
+        if (orderId) {
+          showOrderDetails(orderId);
+        }
+      }
+    });
+
+    // Handle flavor selection change to show/hide new flavor input
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('variantFlavor')) {
+        const select = e.target;
+        if (!select.parentElement) return;  // Added null check for parentElement
+        const newFlavorInput = select.parentElement.querySelector('.newFlavorInput');
+        if (!newFlavorInput) return;  // Added null check to prevent error
+        if (select.value === 'new') {
+          newFlavorInput.style.display = 'block';
+          newFlavorInput.required = true;
+        } else {
+          newFlavorInput.style.display = 'none';
+          newFlavorInput.required = false;
+          newFlavorInput.value = '';
+        }
+      }
+    });
+
+    // Populate flavor selects
+    async function populateFlavorSelects() {
+      const res = await fetch(`${API}/api/flavors`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) return;
+      const flavors = await res.json();
+      const flavorSelects = document.querySelectorAll('.variantFlavor');
+      flavorSelects.forEach(select => {
+        const currentValue = select.value;
+        const selectedValue = select.getAttribute('data-selected') || currentValue;
+        select.innerHTML = '<option value="">Select Flavor</option><option value="new">+ Add New Flavor</option>';
+        flavors.forEach(f => {
+          const option = document.createElement('option');
+          option.value = f.id;
+          option.textContent = f.name;
+          select.appendChild(option);
+        });
+        if (selectedValue) {
+          select.value = selectedValue; // Restore previous selection or set from data-selected
+        }
+        select.removeAttribute('data-selected'); // Clean up
+      });
+    }
+
+    // Fetch and render bars (only products from bar categories)
+    async function fetchBars() {
+      const res = await fetch(`${API}/api/admin/products  `, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) {
+        alert('Failed to fetch bars');
+        return;
+      }
+      const products = await res.json();
+      // Filter only bar products (categories 4, 5, 6)
+      const bars = products.filter(p => [4, 5, 6].includes(p.category_id));
+      const tbody = document.querySelector('#barsTable tbody');
+      tbody.innerHTML = '';
+      bars.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${b.id}</td>
+          <td>${b.name}</td>
+          <td>${b.category_name || b.category}</td>
+          <td>${b.base_price || 'N/A'}</td>
+          <td>
+            <button class="action-btn edit" data-id="${b.id}">Edit</button>
+            <button class="action-btn delete" data-id="${b.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Show bar form for add or edit
+    const barForm = document.getElementById('barForm');
+    const barFormTitle = document.getElementById('barFormTitle');
+    const barIdInput = document.getElementById('barId');
+    const barNameInput = document.getElementById('barName');
+    const barDescriptionInput = document.getElementById('barDescription');
+    const barBasePriceInput = document.getElementById('barBasePrice');
+
+    document.getElementById('btnAddBar').addEventListener('click', async () => {
+      barFormTitle.textContent = 'Add Bar';
+      barIdInput.value = '';
+      barNameInput.value = '';
+      barBasePriceInput.value = '';
+      // Reset category select
+      document.getElementById('barCategory').value = '';
+      await populateBarCategorySelect();
+      barForm.style.display = 'block';
+    });
+
+    document.getElementById('barFormCancel').addEventListener('click', () => {
+      barForm.style.display = 'none';
+    });
+
+    // Handle bar form submit
+    barForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = barIdInput.value;
+      let categoryValue = document.getElementById('barCategory').value;
+      console.log('Selected category:', categoryValue); // Debug log
+
+      if (!categoryValue || categoryValue === '') {
+        alert('Please select a category for the bar');
+        return;
+      }
+
+      // Handle new category creation
+      if (categoryValue === 'new') {
+        const newCategoryInput = document.getElementById('newBarCategoryInput');
+        const newCategoryName = newCategoryInput.value.trim();
+        if (!newCategoryName) {
+          alert('Please enter a name for the new category');
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API}/api/admin/categories`, {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + getToken(),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: newCategoryName })
+          });
+
+          if (!res.ok) {
+            alert('Failed to create new category');
+            return;
+          }
+
+          const data = await res.json();
+          categoryValue = data.id; // Use new category id
+          // Refresh category select to include new category
+          await populateBarCategorySelect();
+          // Update select to new category
+          document.getElementById('barCategory').value = categoryValue;
+          newCategoryInput.value = '';
+          newCategoryInput.style.display = 'none';
+          newCategoryInput.required = false;
+        } catch (error) {
+          console.error('Error creating category:', error);
+          alert('Failed to create new category');
+          return;
+        }
+      }
+
+      const formData = new FormData();
+      formData.append('name', barNameInput.value);
+      formData.append('description', '');
+      formData.append('category_id', parseInt(categoryValue));
+      formData.append('base_price', barBasePriceInput.value ? parseFloat(barBasePriceInput.value) : null);
+      const imageInput = document.getElementById('barImage');
+      if (imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
+      }
+
+      let url = `${API}/api/admin/products`;
+      let method = 'POST';
+      if (id) {
+        url += '/' + id;
+        method = 'PUT';
+      }
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': 'Bearer ' + getToken()
+          // Removed Content-Type header to allow multipart/form-data
+        },
+        body: formData
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert('Failed to save bar: ' + errorText);
+        return;
+      }
+      barForm.style.display = 'none';
+      fetchBars();
+      fetchProducts(); // Refresh products table too
+      fetchVariants(); // Refresh variants table too
+    });
+
+    // Handle edit and delete buttons in bars table
+    document.querySelector('#barsTable tbody').addEventListener('click', async (e) => {
+      if (e.target.classList.contains('edit')) {
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/products/` + id, {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to fetch bar');
+          return;
+        }
+        const bar = await res.json();
+        barFormTitle.textContent = 'Edit Bar';
+        barIdInput.value = bar.id;
+        barNameInput.value = bar.name;
+        document.getElementById('barCategory').value = bar.category_id;
+        barBasePriceInput.value = bar.base_price;
+
+        await populateBarCategorySelect();
+        barForm.style.display = 'block';
+      } else if (e.target.classList.contains('delete')) {
+        if (!confirm('Are you sure you want to delete this bar?')) return;
+        const id = e.target.dataset.id;
+        const res = await fetch(`${API}/api/admin/products/` + id, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        if (!res.ok) {
+          alert('Failed to delete bar');
+          return;
+        }
+        fetchBars();
+        fetchProducts(); // Refresh products table too
+        fetchVariants(); // Refresh variants table too
+      }
+    });
+
+
+
+    // Handle bar category selection change to show/hide new category input
+    document.getElementById('barCategory').addEventListener('change', (e) => {
+      const select = e.target;
+      const newCategoryInput = document.getElementById('newBarCategoryInput');
+      if (select.value === 'new') {
+        newCategoryInput.style.display = 'block';
+        newCategoryInput.required = true;
+      } else {
+        newCategoryInput.style.display = 'none';
+        newCategoryInput.required = false;
+        newCategoryInput.value = '';
+      }
+    });
+
+    // Handle bar flavor selection change to show/hide new flavor input
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('barVariantFlavor')) {
+        const select = e.target;
+        if (!select.parentElement) return;
+        const newFlavorInput = select.parentElement.querySelector('.barNewFlavorInput');
+        if (!newFlavorInput) return;
+        if (select.value === 'new') {
+          newFlavorInput.style.display = 'block';
+          newFlavorInput.required = true;
+        } else {
+          newFlavorInput.style.display = 'none';
+          newFlavorInput.required = false;
+          newFlavorInput.value = '';
+        }
+      }
+    });
+
+    // Populate bar category select
+    async function populateBarCategorySelect() {
+      const res = await fetch(`${API}/api/admin/categories`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) return;
+      const categories = await res.json();
+      const categorySelect = document.getElementById('barCategory');
+      const currentValue = categorySelect.value;
+      categorySelect.innerHTML = '<option value="">Select Category</option>';
+      categories.forEach(c => {
+        if (c.parent_id === null) { // Only top-level categories
+          const option = document.createElement('option');
+          option.value = c.id;
+          option.textContent = c.name;
+          categorySelect.appendChild(option);
+        }
+      });
+      categorySelect.innerHTML += '<option value="new">+ Add New Category</option>';
+      if (currentValue && currentValue !== 'new') {
+        categorySelect.value = currentValue;
+      }
+    }
+
+    // Populate bar flavor selects
+    async function populateBarFlavorSelects() {
+      const res = await fetch(`${API}/api/flavors`, {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!res.ok) return;
+      const flavors = await res.json();
+      const flavorSelects = document.querySelectorAll('.barVariantFlavor');
+      flavorSelects.forEach(select => {
+        const currentValue = select.value;
+        const selectedValue = select.getAttribute('data-selected') || currentValue;
+        select.innerHTML = '<option value="">Select Flavor</option><option value="new">+ Add New Flavor</option>';
+        flavors.forEach(f => {
+          const option = document.createElement('option');
+          option.value = f.id;
+          option.textContent = f.name;
+          select.appendChild(option);
+        });
+        if (selectedValue) {
+          select.value = selectedValue;
+        }
+        select.removeAttribute('data-selected');
+      });
+    }
+
+    // Initial load
+    async function initAdminPanel() {
+      const isAdmin = await checkAdminAccess();
+      if (!isAdmin) return;
+
+      fetchProducts();
+      fetchBars();
+      fetchTestimonials();
+      fetchHeroImages();
+      fetchVariants();
+      fetchCoupons();
+      fetchUsers();
+      fetchOrders();
+    }
+
+    initAdminPanel();
+
+    // Debug: Log coupons table body content after fetchCoupons
+    setTimeout(() => {
+      const tbody = document.querySelector('#couponsTable tbody');
+      console.log('Coupons table tbody innerHTML:', tbody.innerHTML);
+    }, 2000);
+  </script>
+</body>
+</html>

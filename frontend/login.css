@@ -1,0 +1,202 @@
+/* Base styles */
+.form-container {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+.form-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+.form-container p {
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+.form-container input,
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.form-container input {
+    border: 1px solid #999;
+}
+.form-container a {
+    font-size: 0.9rem;
+    color: #000;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+.form-container button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 10px 0;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.hidden {
+    display: none;
+}
+
+/* Account page styles */
+#accountPage {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    color: #111;
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px 0;
+}
+.account-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+.account-wrapper > div {
+    flex: 1 1 0;
+    min-width: 250px;
+    text-align: left;
+    margin: 0;
+}
+.account-left,
+.account-right {
+    text-align: left;
+    flex: 1 1 0;
+    min-width: 250px;
+}
+.account-left h1,
+.account-right h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+.account-wrapper h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+.account-wrapper h2 {
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.account-wrapper p,
+.account-wrapper a {
+    font-weight: 400;
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 0.75rem;
+}
+
+/* Addresses page */
+#addressesPage {
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+}
+
+#addressForm, #editAddressForm {
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+#addressList p, #addressList h2 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Media Queries for responsiveness */
+@media only screen and (max-width: 900px) {
+    .account-wrapper {
+        flex-direction: column;
+        gap: 0;
+    }
+    .account-wrapper > div {
+        min-width: 0;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    #accountPage {
+        padding: 15px 2%;
+        margin-left: 0;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .form-container {
+        padding: 20px 5px;
+        max-width: 95vw;
+    }
+    .form-container h1 {
+        font-size: 1.3rem;
+    }
+    .account-wrapper h1 {
+        font-size: 1.8rem;
+    }
+    .account-wrapper h2 {
+        font-size: 1.1rem;
+    }
+    #accountPage,
+    #addressesPage,
+    #addressForm,
+    #editAddressForm {
+        padding: 10px;
+        max-width: 97vw;
+    }
+    .account-wrapper > div {
+        min-width: 0;
+        width: 100%;
+    }
+}
+
+/* Extra small devices */
+@media only screen and (max-width: 400px) {
+    .form-container,
+    #accountPage,
+    #addressesPage {
+        padding: 5px 1px;
+        max-width: 100vw;
+    }
+    .account-wrapper h1 {
+        font-size: 1.2rem;
+    }
+    .form-container h1 {
+        font-size: 1rem;
+    }
+}
+
+.form-btn-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 8px 0 0 0;
+}
+.form-btn-row button {
+    width: 100%;
+    margin: 0;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.form-btn-row button[type="button"] {
+    background-color: #000;
+    color: #fff;
+}

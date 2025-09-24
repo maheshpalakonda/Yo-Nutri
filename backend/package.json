@@ -1,0 +1,38 @@
+{
+  "name": "yono-backend",
+  "version": "1.0.0",
+  "description": "Backend for Yo Nutri e-commerce site",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "and": "^0.0.3",
+    "axios": "^1.11.0",
+    "babel-loader": "^10.0.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.4",
+    "mysql2": "^3.6.5",
+    "nodemailer": "^7.0.6",
+    "npm": "^11.6.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "start": "^5.1.0",
+    "twilio": "^5.9.0",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
